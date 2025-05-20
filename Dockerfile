@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y curl unzip jq && \
     chmod +x /usr/local/bin/vault && \
     rm vault_1.13.0_linux_amd64.zip
 
-RUN chmod +x /app/scripts/get_secrets.sh
+RUN chmod +x /app/src/scripts/get_secrets.sh
 
 CMD ["sh", "-c", \
-     "/app/scripts/get_secrets.sh && python src/scripts/init_db.py && uvicorn src.api.app:app --host 0.0.0.0 --port 8000"]
+     "/app/src/scripts/get_secrets.sh && python src/scripts/init_db.py && uvicorn src.api.app:app --host 0.0.0.0 --port 8000"]
