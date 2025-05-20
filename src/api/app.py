@@ -61,8 +61,9 @@ async def predict(
         logger.info(f"Prediction result: {prediction[0]}")
         
         # Сохраняем предсказание в БД
-        ### ДОБАВИТЬ ЛОГИРОВАНИЕ
+        logger.info("Saving prediction to database")
         save_prediction(db, features, prediction[0])
+        logger.info("Prediction saved successfully")
         
         return {"species": prediction[0]}
     
