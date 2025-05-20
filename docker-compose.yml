@@ -1,40 +1,61 @@
+volumes:
+  postgres_data:
+  vault_data:
+
 services:
+  vault:
+    image: vault:1.13.0
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "root"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    volumes:
+      - vault_data:/vault/data
+    cap_add:
+      - IPC_LOCK
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8200/v1/sys/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  vault-init:
+    image: vault:1.13.0
+    depends_on:
+      vault:
+        condition: service_healthy
+    volumes:
+      - ./src/scripts:/scripts
+    entrypoint: sh -c "
+      vault login root &&
+      sh /scripts/init_vault.sh"
+    environment:
+      VAULT_ADDR: "http://vault:8200"
+      VAULT_TOKEN: "root"
+
+  db:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    depends_on:
+      vault-init:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_USER: "penguin_user"
+      POSTGRES_PASSWORD: "123321"
+      POSTGRES_DB: "penguin_db"
+
   penguin-api:
     build: .
     ports:
       - "8000:8000"
-    environment:
-      - PYTHONPATH=/app
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}
     depends_on:
       db:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-    env_file:
-      - .env
-
-  db:
-    image: postgres:13
+        condition: service_started
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    ports:
-      - "${POSTGRES_PORT}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    env_file:
-      - .env
-
-volumes:
-  postgres_data:
+      VAULT_ADDR: "http://vault:8200"
+      VAULT_TOKEN: "root"
+    command: sh -c "/app/scripts/get_secrets.sh && python src/scripts/init_db.py && uvicorn src.api.app:app --host 0.0.0.0 --port 8000"
