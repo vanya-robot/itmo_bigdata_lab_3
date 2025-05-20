@@ -2,6 +2,8 @@ from configparser import ConfigParser
 from pathlib import Path
 from typing import Dict, Any
 from pydantic_settings import BaseSettings
+import hvac
+import os
 
 def load_config(config_path: str = 'config.ini') -> ConfigParser:
     config = ConfigParser()
@@ -26,12 +28,16 @@ def load_config_to_dict(config_path: str) -> Dict[str, Any]:
     return result
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql://test_user:test_pass@localhost:5432/test_db"  # Дефолт для CI/CD
-    postgres_port: int = 5432
-    
-    class Config:
-        env_file = ".env"
-        env_file_encoding = 'utf-8'
-        extra = "ignore"  # Игнорировать лишние переменные
+    vault_addr: str = "http://vault:8200"
+    vault_token: str = "root"
+    vault_secret_path: str = "secret/data/postgres"
+
+    def get_db_url(self) -> str:
+        client = hvac.Client(url=self.vault_addr, token=self.vault_token)
+        secret = client.secrets.kv.v2.read_secret_version(
+            path=self.vault_secret_path.replace("secret/data/", "postgres")
+        )
+        data = secret['data']['data']
+        return f"postgresql://{data['user']}:{data['password']}@db:5432/{data['db']}"
 
 settings = Settings()
