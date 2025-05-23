@@ -13,3 +13,4 @@ testing.py
 /.pytest_cache
 .env
 test_local.py
+docker-compose.override.yml
