@@ -1,5 +1,5 @@
 import logging
-from src.db.database import engine, Base, init_db_connection
+from src.db.database import engine, Base
 from src.config import settings
 from src.exceptions import DatabaseInitError
 
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 def init_db():
     try:
         # Инициализируем подключение (теперь с Vault)
-        init_db_connection()
+        #init_db_connection()
         
         logger.info(f"Initializing database on {settings.database_url}")
         Base.metadata.create_all(bind=engine)

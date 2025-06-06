@@ -4,14 +4,10 @@ from sqlalchemy.orm import sessionmaker
 from src.config import settings
 import time
 
-Base = declarative_base()
-engine = None
-SessionLocal = None
-
 def init_db_connection():
     global engine, SessionLocal
     if engine is None:
-        engine = create_engine(settings.get_db_url())
+        engine = create_engine(settings.database_url)
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
@@ -22,3 +18,9 @@ def get_db():
         yield db
     finally:
         db.close()
+
+Base = declarative_base()
+#engine = None
+engine = create_engine(settings.database_url)
+#SessionLocal = None
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
