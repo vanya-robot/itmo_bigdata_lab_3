@@ -8,3 +8,5 @@ httpx>=0.28.1
 pydantic
 pytest
 pydantic-settings
+hvac>=2.0.0
+setuptools

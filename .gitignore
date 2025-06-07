@@ -11,3 +11,6 @@ testing.py
 !models/.gitkeep
 !data/raw/.gitkeep
 /.pytest_cache
+.env
+test_local.py
+docker-compose.override.yml

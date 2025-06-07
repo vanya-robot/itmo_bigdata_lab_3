@@ -33,3 +33,11 @@ class DataExtractionError(Exception):
 class DataNotFoundError(Exception):
     """Данные не найдены"""
     pass
+
+class DatabaseInitError(Exception):
+    """Ошибка инициализации базы данных"""
+    pass
+
+class VaultConnectionError(Exception):
+    """Ошибка подключения к Vault"""
+    pass

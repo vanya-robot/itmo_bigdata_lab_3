@@ -11,8 +11,8 @@ TIMESTAMP=$(date +%Y%m%d%H%M%S)
 
 echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
-docker build -t $DOCKERHUB_USERNAME/penguin-classifier-withdb:latest \
-             -t $DOCKERHUB_USERNAME/penguin-classifier-withdb:$VERSION \
-             -t $DOCKERHUB_USERNAME/penguin-classifier-withdb:$TIMESTAMP .
+docker build -t $DOCKERHUB_USERNAME/penguin-classifier-withdb-secrets:latest \
+             -t $DOCKERHUB_USERNAME/penguin-classifier-withdb-secrets:$VERSION \
+             -t $DOCKERHUB_USERNAME/penguin-classifier-withdb-secrets:$TIMESTAMP .
 
-docker push $DOCKERHUB_USERNAME/penguin-classifier-withdb --all-tags
+docker push $DOCKERHUB_USERNAME/penguin-classifier-withdb-secrets --all-tags
