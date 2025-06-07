@@ -21,5 +21,4 @@ RUN apt-get update && apt-get install -y jq && \
     rm -rf /var/lib/apt/lists/*
 
 CMD ["sh", "-c", \
-     "python src/scripts/init_db.py && \
-     python -m uvicorn src.api.app:app --host 0.0.0.0 --port 8000"]
+     "python -m uvicorn src.api.app:app --host 0.0.0.0 --port 8000"]
